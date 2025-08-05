@@ -27,9 +27,11 @@ for (let select of dropdowns) {
 const updateExchangeRate = async () => {
   let amount = document.querySelector(".amount input");
   let amtVal = amount.value;
-  if (amtVal === "" || amtVal < 1) {
-    amtVal = 1;
-    amount.value = "1";
+  
+  // Only proceed if there's a valid number
+  if (amtVal === "" || isNaN(amtVal) || amtVal <= 0) {
+    msg.innerText = "Please enter a valid amount";
+    return;
   }
   
   // Show loading state
@@ -65,12 +67,21 @@ btn.addEventListener("click", (evt) => {
   updateExchangeRate();
 });
 
-// Add event listener for amount input
+// Add debouncing to prevent too many API calls
+let debounceTimer;
 const amountInput = document.querySelector(".amount input");
 amountInput.addEventListener("input", () => {
-  updateExchangeRate();
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    updateExchangeRate();
+  }, 500); // Wait 500ms after user stops typing
 });
 
 window.addEventListener("load", () => {
+  // Set initial amount to 1 for first load
+  const amountInput = document.querySelector(".amount input");
+  if (amountInput.value === "") {
+    amountInput.value = "1";
+  }
   updateExchangeRate();
 });
